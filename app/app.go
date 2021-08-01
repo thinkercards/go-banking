@@ -42,8 +42,13 @@ func Start() {
 	dbClient := getDbClient()
 	customerRepositoryDb := domain.NewCustomerRepositoryDb(dbClient)
 	accountRepositoryDb := domain.NewAccountRepositoryDb(dbClient)
+
+	productRepositoryDb := domain.NewProductRepositoryDb(dbClient)
+
 	ch := CustomerHandlers{service.NewCustomerService(customerRepositoryDb)}
 	ah := AccountHandler{service.NewAccountService(accountRepositoryDb)}
+
+	ph := ProductHandlers{service.NewProductService(productRepositoryDb)}
 
 	// define routes
 	router.
@@ -54,6 +59,12 @@ func Start() {
 		HandleFunc("/customers/{customer_id:[0-9]+}", ch.getCustomer).
 		Methods(http.MethodGet).
 		Name("GetCustomer")
+
+	router.
+		HandleFunc("/products", ph.getAllProducts).
+		Methods(http.MethodGet).
+		Name("getAllProducts")
+
 	router.
 		HandleFunc("/customers/{customer_id:[0-9]+}/account", ah.NewAccount).
 		Methods(http.MethodPost).
